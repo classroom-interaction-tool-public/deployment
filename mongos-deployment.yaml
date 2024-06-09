@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongos
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      role: mongos
+  template:
+    metadata:
+      labels:
+        role: mongos
+    spec:
+      containers:
+      - name: mongos
+        image: mongo:4.4
+        command: ["mongos", "--configdb", "rs-config/mongo-config-server-0.mongo-config.default.svc.cluster.local:27019,mongo-config-server-1.mongo-config.default.svc.cluster.local:27019,mongo-config-server-2.mongo-config.default.svc.cluster.local:27019", "--bind_ip_all"]
+        ports:
+        - containerPort: 27017

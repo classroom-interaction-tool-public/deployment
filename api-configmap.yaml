@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+data:
+  MONGODB_URI: "mongodb://mongos:27017"
+  MONGODB_DB_NAME: "citdb"

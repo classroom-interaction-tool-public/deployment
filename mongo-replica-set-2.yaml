@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo-replica-set-2
+spec:
+  serviceName: "mongo"
+  replicas: 3
+  selector:
+    matchLabels:
+      role: mongo
+      replica-set: "2"
+  template:
+    metadata:
+      labels:
+        role: mongo
+        replica-set: "2"
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:4.4
+        command: ["mongod", "--replSet", "rs2", "--bind_ip_all", "--shardsvr"]
+        ports:
+        - containerPort: 27018

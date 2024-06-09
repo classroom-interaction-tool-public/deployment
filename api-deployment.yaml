@@ -1,0 +1,57 @@
+# ./k8s/api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastify-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastify-api
+  template:
+    metadata:
+      labels:
+        app: fastify-api
+    spec:
+      containers:
+        - name: fastify-api
+          image: fastify-api:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: fastify-api-secret
+                  key: JWT_SECRET
+            - name: COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: fastify-api-secret
+                  key: COOKIE_SECRET
+            - name: MONGODB_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGODB_URI
+            - name: MONGODB_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGODB_DB_NAME
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastify-api-service
+spec:
+  type: NodePort
+  ports:
+    - port: 5000
+      targetPort: 5000
+      nodePort: 30500
+  selector:
+    app: fastify-api

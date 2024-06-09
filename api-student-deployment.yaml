@@ -1,0 +1,67 @@
+# ./k8s/api-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-student
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-student
+  template:
+    metadata:
+      labels:
+        app: api-student
+    spec:
+      containers:
+        - name: api-student
+          image: api-student:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5003
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: api-secret
+                  key: JWT_SECRET
+            - name: COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: api-secret
+                  key: COOKIE_SECRET
+            - name: MONGODB_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: MONGODB_URI
+            - name: MONGODB_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: api-config
+                  key: MONGODB_DB_NAME
+            - name: RABBITMQ_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: rabbitmq-username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-secret
+                  key: rabbitmq-password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-student-service
+spec:
+  type: NodePort
+  ports:
+    - port: 5003
+      targetPort: 5003
+      nodePort: 30503
+  selector:
+    app: api-student
